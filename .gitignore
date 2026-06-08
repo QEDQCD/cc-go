@@ -5,6 +5,7 @@
 /cc-go-mac
 /cc-go-darwin-*
 /cc-go.app
+/dist/
 *.exe
 *.exe~
 *.test

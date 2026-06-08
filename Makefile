@@ -1,7 +1,11 @@
-.PHONY: all build web clean run dev test build-mac-app
+.PHONY: all build web clean run dev test build-mac-app release
 
 APP_NAME = cc-go
 WEB_DIR = web
+DIST_DIR = dist
+LDFLAGS = -s -w
+GOPROXY ?= https://goproxy.cn,direct
+export GOPROXY
 
 all: web build
 
@@ -44,3 +48,13 @@ clean:
 
 test:
 	go test ./... -v -count=1 -timeout 60s
+
+release: web
+	@mkdir -p $(DIST_DIR)
+	cd $(WEB_DIR) && npm run build
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(APP_NAME)-linux-amd64 ./cmd/cc-go/
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-H windowsgui $(LDFLAGS)" -o $(DIST_DIR)/$(APP_NAME)-windows-amd64.exe ./cmd/cc-go/
+	CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(APP_NAME)-darwin-amd64 ./cmd/cc-go/
+	CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(APP_NAME)-darwin-arm64 ./cmd/cc-go/
+	@cd $(DIST_DIR) && sha256sum $(APP_NAME)-* > SHA256SUMS
+	@echo "Release binaries built in $(DIST_DIR)/"
