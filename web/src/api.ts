@@ -2,9 +2,14 @@ const BASE = '/api/v1'
 
 async function request(path: string, options?: RequestInit) {
   const res = await fetch(`${BASE}${path}`, {
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })
+  if (res.status === 401 && !path.startsWith('/auth/')) {
+    window.location.href = '/login'
+    throw new Error('未登录')
+  }
   if (!res.ok) {
     let msg = `请求失败 (${res.status})`
     try {

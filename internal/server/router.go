@@ -8,6 +8,7 @@ import (
 	"github.com/QEDQCD/cc-go/internal/bridge"
 	"github.com/QEDQCD/cc-go/internal/config"
 	"github.com/QEDQCD/cc-go/internal/server/api"
+	"github.com/QEDQCD/cc-go/internal/server/auth"
 	"github.com/QEDQCD/cc-go/internal/server/ws"
 	"github.com/QEDQCD/cc-go/internal/store"
 	"github.com/QEDQCD/cc-go/internal/wechat"
@@ -27,6 +28,7 @@ func New(cfg *config.Config, st *store.Store, br *bridge.Bridge, wc *wechat.Clie
 	r := gin.Default()
 
 	hub := ws.NewHub()
+	authMgr := auth.NewManager(cfg)
 
 	s := &Server{
 		router: r,
@@ -48,7 +50,7 @@ func New(cfg *config.Config, st *store.Store, br *bridge.Bridge, wc *wechat.Clie
 		}
 	}()
 
-	api.RegisterRoutes(r, cfg, st, br, wc, hub)
+	api.RegisterRoutes(r, cfg, st, br, wc, hub, authMgr)
 	return s
 }
 
