@@ -130,7 +130,7 @@ export default function Login() {
             </form>
 
             <p className="mt-6 text-xs text-on-surface-variant/60 text-center">
-              默认账号：admin / admin123
+              登录凭据见服务端 ~/.cc-go/auth.json（可参考 auth.example.json）
             </p>
           </div>
         </div>

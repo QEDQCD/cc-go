@@ -3,6 +3,7 @@ package auth
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 
@@ -13,13 +14,31 @@ import (
 func TestLoginAndSession(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
+	origHome := os.Getenv("HOME")
+	origUserProfile := os.Getenv("USERPROFILE")
+	tmpDir := t.TempDir()
+	os.Setenv("HOME", tmpDir)
+	os.Setenv("USERPROFILE", tmpDir)
+	defer func() {
+		os.Setenv("HOME", origHome)
+		os.Setenv("USERPROFILE", origUserProfile)
+	}()
+
 	cfg := config.DefaultConfig()
+	auth, err := config.LoadAuth(&config.AuthConfig{
+		Username: "admin",
+		Password: "test-password-123!",
+	})
+	if err != nil {
+		t.Fatalf("LoadAuth failed: %v", err)
+	}
+	cfg.Auth = auth
 	mgr := NewManager(cfg)
 	r := gin.New()
 	api := r.Group("/api/v1")
 	mgr.RegisterRoutes(api)
 
-	loginBody := `{"username":"admin","password":"admin123"}`
+	loginBody := `{"username":"` + cfg.Auth.Username + `","password":"` + cfg.Auth.Password + `"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/auth/login", strings.NewReader(loginBody))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()

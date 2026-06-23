@@ -34,7 +34,7 @@ type Config struct {
 	AutoOpenBrowser  bool         `json:"auto_open_browser"`
 	AutoResumeLatest bool         `json:"auto_resume_latest"`
 	ClaudeEnvVars    string       `json:"claude_env_vars"`
-	Auth             AuthConfig   `json:"auth"`
+	Auth             AuthConfig   `json:"-"`
 	Wechat          WechatConfig `json:"wechat"`
 	PushTypes       []string     `json:"push_types"`
 	BotCommands     []BotCommand `json:"bot_commands"`
@@ -102,10 +102,6 @@ func DefaultConfig() *Config {
 		Language:        "zh-CN",
 		WebPort:         18080,
 		AutoOpenBrowser: true,
-		Auth: AuthConfig{
-			Username: "admin",
-			Password: "admin123",
-		},
 		Wechat: WechatConfig{
 			BotToken:                  "",
 			BaseURL:                   "https://ilinkai.weixin.qq.com",
@@ -181,7 +177,15 @@ func Load() (*Config, error) {
 			SeedDefaultSkills()
 			cfg := DefaultConfig()
 			cfg.Skills = ensureSkills(cfg.Skills)
-			return cfg, cfg.Save()
+			if err := cfg.Save(); err != nil {
+				return nil, err
+			}
+			auth, err := LoadAuth(nil)
+			if err != nil {
+				return nil, err
+			}
+			cfg.Auth = auth
+			return cfg, nil
 		}
 		return nil, err
 	}
@@ -191,7 +195,12 @@ func Load() (*Config, error) {
 	}
 	SeedDefaultSkills()
 	cfg.Wechat = cfg.Wechat.Normalize()
-	cfg.Auth = ensureAuth(cfg.Auth)
+	legacyAuth := extractLegacyAuth(data)
+	auth, err := LoadAuth(legacyAuth)
+	if err != nil {
+		return nil, err
+	}
+	cfg.Auth = auth
 	cfg.PushTypes = ensurePermission(cfg.PushTypes)
 	cfg.BotCommands = ensureBotCommands(cfg.BotCommands)
 	cfg.Skills = ensureSkills(cfg.Skills)
@@ -214,7 +223,6 @@ func (c *Config) Save() error {
 	c.BotCommands = ensureBotCommands(c.BotCommands)
 	c.Skills = ensureSkills(c.Skills)
 	c.Wechat = c.Wechat.Normalize()
-	c.Auth = ensureAuth(c.Auth)
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return err
@@ -294,16 +302,6 @@ func indexEqual(s string) int {
 		}
 	}
 	return -1
-}
-
-func ensureAuth(auth AuthConfig) AuthConfig {
-	if auth.Username == "" {
-		auth.Username = "admin"
-	}
-	if auth.Password == "" {
-		auth.Password = "admin123"
-	}
-	return auth
 }
 
 func ensurePermission(types []string) []string {

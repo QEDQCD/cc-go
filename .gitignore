@@ -30,6 +30,7 @@ cmd/cc-go/web-dist/
 
 # Config (user-specific)
 .cc-go/
+auth.json
 
 # Docs (local only)
 docs/stitch_cc_go_remote_manager/
