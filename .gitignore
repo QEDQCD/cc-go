@@ -35,3 +35,4 @@ auth.json
 # Docs (local only)
 docs/stitch_cc_go_remote_manager/
 docs/superpowers/
+AGENTS.md
