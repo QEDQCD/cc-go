@@ -5,6 +5,13 @@ Copyright (c) 2026 liwenjian
 Based on cc-go (https://github.com/linfree/cc-go)
 Copyright (c) 2026 linfree
 
+This fork (https://github.com/QEDQCD/cc-go) includes the following
+modifications from upstream:
+
+- Web login authentication (session-based)
+- Local credentials in auth.json
+- Docker Compose single-container deployment
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights

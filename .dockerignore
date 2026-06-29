@@ -1,0 +1,17 @@
+.git
+.github
+.idea
+.vscode
+dist
+web/node_modules
+cmd/cc-go/web-dist
+.cc-go
+data
+*.exe
+cc-go
+cc-go-*
+*.app
+AGENTS.md
+docs/stitch_cc_go_remote_manager
+docs/superpowers
+auth.json

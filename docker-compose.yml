@@ -1,0 +1,22 @@
+services:
+  cc-go:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cc-go
+    ports:
+      - "${CC_GO_PORT:-18080}:18080"
+    volumes:
+      - cc-go-data:/root/.cc-go
+      # Claude Code 凭据（首次登录后取消注释）
+      # - ${HOME}/.claude:/root/.claude
+      # Claude CLI 可执行文件（按本机路径调整）
+      # - ${CLAUDE_CLI_PATH:-/usr/local/bin/claude}:/usr/local/bin/claude:ro
+      # 会话工作目录
+      # - ./workspace:/workspace
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+    restart: unless-stopped
+
+volumes:
+  cc-go-data:

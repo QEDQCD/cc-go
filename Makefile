@@ -1,4 +1,4 @@
-.PHONY: all build web clean run dev test build-mac-app release
+.PHONY: all build web clean run dev test build-mac-app release docker-build docker-up docker-down docker-logs
 
 APP_NAME = cc-go
 WEB_DIR = web
@@ -58,3 +58,15 @@ release: web
 	CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(APP_NAME)-darwin-arm64 ./cmd/cc-go/
 	@cd $(DIST_DIR) && sha256sum $(APP_NAME)-* > SHA256SUMS
 	@echo "Release binaries built in $(DIST_DIR)/"
+
+docker-build:
+	docker compose build
+
+docker-up:
+	docker compose up -d
+
+docker-down:
+	docker compose down
+
+docker-logs:
+	docker compose logs -f
